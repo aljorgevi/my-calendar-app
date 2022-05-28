@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Modal from 'react-modal'
 import DateTimePicker from 'react-datetime-picker'
 import moment from 'moment'
+import Swal from 'sweetalert2'
 
 const customStyles = {
   content: {
@@ -17,20 +18,21 @@ const customStyles = {
 Modal.setAppElement('#root')
 
 const now = moment().minutes(0).seconds(0).add(1, 'hours')
-const end = now.clone().add(3, 'hours')
+const _end = now.clone().add(3, 'hours')
 
 const CalendarModal = () => {
   const [startDate, setStartDate] = useState(now.toDate())
-  const [endDate, setEndDate] = useState(end.toDate())
+  const [endDate, setEndDate] = useState(_end.toDate())
+  const [isTitleValid, setIsTitleValid] = useState(true)
 
   const [formValues, setFormValues] = useState({
-    title: 'Evento',
+    title: '',
     notes: '',
     start: now.toDate(),
-    end: end.toDate()
+    end: _end.toDate()
   })
 
-  const { notes, title } = formValues
+  const { notes, title, start, end } = formValues
 
   const handleStartDateChange = date => {
     setStartDate(date)
@@ -43,6 +45,7 @@ const CalendarModal = () => {
   }
 
   function closeModal() {
+    // TODO: close modal
     console.log('closeModal')
   }
 
@@ -55,8 +58,29 @@ const CalendarModal = () => {
 
   const handleSubmit = event => {
     event.preventDefault()
-    console.log('handleSubmit')
-    console.log({ formValues })
+
+    // start & end are normal instances of Date of JS but we need to convert them to moment instances in order to compare them
+    // because moment have a method to compare dates
+    const momentStart = moment(start)
+    const momentEnd = moment(end)
+
+    if (momentStart.isSameOrAfter(momentEnd)) {
+      return Swal.fire(
+        'Error',
+        'La fecha de inicio debe ser anterior a la fecha de fin',
+        'error'
+      )
+    }
+
+    if (title.trim().length < 2) {
+      // TODO: we could add as well a errorMessage to display it in the form saying the title is too short
+      return setIsTitleValid(false)
+    }
+
+    // save in db
+
+    setIsTitleValid(true)
+    closeModal()
   }
 
   return (
@@ -97,7 +121,7 @@ const CalendarModal = () => {
             <label>Titulo y notas</label>
             <input
               type='text'
-              className='form-control'
+              className={`form-control ${!isTitleValid && 'is-invalid'}`}
               placeholder='Título del evento'
               name='title'
               autoComplete='off'
@@ -119,12 +143,15 @@ const CalendarModal = () => {
               value={notes}
               onChange={handleInputChange}
             ></textarea>
+
             <small id='emailHelp' className='form-text text-muted'>
               Información adicional
             </small>
           </div>
-
-          <button type='submit' className='btn btn-outline-primary btn-block'>
+          <button
+            type='submit'
+            className='btn btn-outline-primary btn-block mt-2'
+          >
             <i className='far fa-save'></i>
             <span> Guardar</span>
           </button>
