@@ -7,6 +7,7 @@ import Navbar from '../ui/Navbar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'moment/locale/es'
 import CalendarEvent from './CalendarEvent'
+import CalendarModal from './CalendarModal'
 
 moment.locale('es')
 
@@ -56,22 +57,25 @@ const CalendarScreen = () => {
   }
 
   return (
-    <div className='calendar-screen'>
-      <Navbar />
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor='start'
-        endAccessor='end'
-        messages={messages}
-        eventPropGetter={eventStyleGetter}
-        components={{ event: CalendarEvent }}
-        onDoubleClickEvent={onDoubleClick}
-        onSelectEvent={onSelectEvent}
-        onView={onViewChange}
-        view={lastView}
-      />
-    </div>
+    <section>
+      <div className='calendar-screen'>
+        <Navbar />
+        <Calendar
+          localizer={localizer}
+          events={events}
+          startAccessor='start'
+          endAccessor='end'
+          messages={messages}
+          eventPropGetter={eventStyleGetter}
+          components={{ event: CalendarEvent }}
+          onDoubleClickEvent={onDoubleClick}
+          onSelectEvent={onSelectEvent}
+          onView={onViewChange}
+          view={lastView}
+        />
+      </div>
+      <CalendarModal />
+    </section>
   )
 }
 
