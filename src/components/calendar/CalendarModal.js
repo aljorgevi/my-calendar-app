@@ -34,12 +34,12 @@ const CalendarModal = () => {
 
   const handleStartDateChange = date => {
     setStartDate(date)
-    console.log('startDate', date)
+    setFormValues({ ...formValues, start: date })
   }
 
   const handleEndDateChange = date => {
     setEndDate(date)
-    console.log('endDate', date)
+    setFormValues({ ...formValues, end: date })
   }
 
   function closeModal() {
@@ -51,6 +51,12 @@ const CalendarModal = () => {
       ...formValues,
       [event.target.name]: event.target.value
     })
+  }
+
+  const handleSubmit = event => {
+    event.preventDefault()
+    console.log('handleSubmit')
+    console.log({ formValues })
   }
 
   return (
@@ -66,7 +72,7 @@ const CalendarModal = () => {
       >
         <h1> Nuevo evento </h1>
         <hr />
-        <form className='container'>
+        <form className='container' onSubmit={handleSubmit}>
           <div className='form-group'>
             <label>Fecha y hora inicio</label>
             <DateTimePicker
