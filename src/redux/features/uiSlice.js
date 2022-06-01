@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 const initialState = {
-	modalOpen: false
+	isModalOpen: false
 }
 
 const uiSlice = createSlice({
@@ -9,11 +9,14 @@ const uiSlice = createSlice({
 	initialState,
 	reducers: {
 		openModal: state => {
-			state.modalOpen = true
+			state.isModalOpen = true
+		},
+		closeModal: state => {
+			state.isModalOpen = false
 		}
 	}
 })
 
-export const { openModal } = uiSlice.actions
+export const { openModal, closeModal } = uiSlice.actions
 
 export default uiSlice.reducer
