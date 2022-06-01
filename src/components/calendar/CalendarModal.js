@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import DateTimePicker from 'react-datetime-picker'
 import moment from 'moment'
@@ -6,28 +6,36 @@ import Modal from 'react-modal'
 import Swal from 'sweetalert2'
 import { customStyles } from '../../helpers'
 import { closeModal } from '../../redux/features/uiSlice'
-import { addEvent } from '../../redux/features/calendarSlice'
+import { addEvent, clearActiveNote } from '../../redux/features/calendarSlice'
 
 Modal.setAppElement('#root')
 
 const now = moment().minutes(0).seconds(0).add(1, 'hours')
 const _end = now.clone().add(3, 'hours')
 
+const defaultValues = {
+	title: '',
+	notes: '',
+	start: now.toDate(),
+	end: _end.toDate()
+}
+
 const CalendarModal = () => {
 	const dispatch = useDispatch()
 	const { isModalOpen } = useSelector(store => store.ui)
+	const { activeEvents } = useSelector(store => store.calendar)
 	const [startDate, setStartDate] = useState(now.toDate())
 	const [endDate, setEndDate] = useState(_end.toDate())
 	const [isTitleValid, setIsTitleValid] = useState(true)
-
-	const [formValues, setFormValues] = useState({
-		title: '',
-		notes: '',
-		start: now.toDate(),
-		end: _end.toDate()
-	})
+	const [formValues, setFormValues] = useState(defaultValues)
 
 	const { notes, title, start, end } = formValues
+
+	useEffect(() => {
+		if (activeEvents) {
+			setFormValues(activeEvents)
+		}
+	}, [activeEvents])
 
 	const handleStartDateChange = date => {
 		setStartDate(date)
@@ -39,7 +47,11 @@ const CalendarModal = () => {
 		setFormValues({ ...formValues, end: date })
 	}
 
-	const closeModalHandler = () => dispatch(closeModal())
+	const closeModalHandler = () => {
+		dispatch(closeModal())
+		dispatch(clearActiveNote())
+		setFormValues(defaultValues)
+	}
 
 	const handleInputChange = event => {
 		setFormValues({
@@ -82,6 +94,7 @@ const CalendarModal = () => {
 		)
 		// TODO: we could add a successMessage to display it in the form saying the event was added successfully
 		dispatch(closeModal())
+		setFormValues(defaultValues)
 
 		setIsTitleValid(true)
 		closeModal()

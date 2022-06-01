@@ -30,10 +30,14 @@ const calendarSlice = createSlice({
 		},
 		setActiveEvent: (state, action) => {
 			state.activeEvents = action.payload
+		},
+		clearActiveNote: state => {
+			state.activeEvents = null
 		}
 	}
 })
 
-export const { addEvent, setActiveEvent } = calendarSlice.actions
+export const { addEvent, setActiveEvent, clearActiveNote } =
+	calendarSlice.actions
 
 export default calendarSlice.reducer
