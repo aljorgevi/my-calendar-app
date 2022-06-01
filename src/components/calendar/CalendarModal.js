@@ -6,6 +6,7 @@ import Modal from 'react-modal'
 import Swal from 'sweetalert2'
 import { customStyles } from '../../helpers'
 import { closeModal } from '../../redux/features/uiSlice'
+import { addEvent } from '../../redux/features/calendarSlice'
 
 Modal.setAppElement('#root')
 
@@ -69,6 +70,18 @@ const CalendarModal = () => {
 		}
 
 		// save in db
+		dispatch(
+			addEvent({
+				id: new Date().getTime(),
+				user: {
+					_id: '123',
+					name: 'John Doe'
+				},
+				...formValues
+			})
+		)
+		// TODO: we could add a successMessage to display it in the form saying the event was added successfully
+		dispatch(closeModal())
 
 		setIsTitleValid(true)
 		closeModal()
