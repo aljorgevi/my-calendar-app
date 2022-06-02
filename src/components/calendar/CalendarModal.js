@@ -8,7 +8,7 @@ import { customStyles } from '../../helpers'
 import { closeModal } from '../../redux/features/uiSlice'
 import {
 	addEvent,
-	clearActiveNote,
+	clearActiveEvent,
 	eventUpdated
 } from '../../redux/features/calendarSlice'
 
@@ -56,7 +56,7 @@ const CalendarModal = () => {
 
 	const closeModalHandler = () => {
 		dispatch(closeModal())
-		dispatch(clearActiveNote())
+		dispatch(clearActiveEvent())
 		setFormValues(defaultValues)
 	}
 
@@ -123,7 +123,7 @@ const CalendarModal = () => {
 				overlayClassName='modal-fondo'
 				closeTimeoutMS={200}
 			>
-				<h1> Nuevo evento </h1>
+				<h2>{activeEvents ? 'Editar Evento' : 'Nuevo evento'}</h2>
 				<hr />
 				<form className='container' onSubmit={handleSubmit}>
 					<div className='form-group'>

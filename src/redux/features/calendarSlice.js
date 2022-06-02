@@ -32,7 +32,7 @@ const calendarSlice = createSlice({
 		setActiveEvent: (state, action) => {
 			state.activeEvents = action.payload
 		},
-		clearActiveNote: state => {
+		clearActiveEvent: state => {
 			state.activeEvents = null
 		},
 		eventUpdated: (state, action) => {
@@ -56,7 +56,7 @@ const calendarSlice = createSlice({
 export const {
 	addEvent,
 	setActiveEvent,
-	clearActiveNote,
+	clearActiveEvent,
 	eventUpdated,
 	eventDeleted
 } = calendarSlice.actions

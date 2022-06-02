@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import { openModal } from '../../redux/features/uiSlice'
-import { setActiveEvent } from '../../redux/features/calendarSlice'
+import {
+	setActiveEvent,
+	clearActiveEvent
+} from '../../redux/features/calendarSlice'
 import { messages } from '../../helpers'
 import moment from 'moment'
 import Navbar from '../ui/Navbar'
@@ -48,6 +51,11 @@ const CalendarScreen = () => {
 		}
 	}
 
+	const onSelectSlot = event => {
+		// TODO: this event allow to select a slot and create a new event
+		dispatch(clearActiveEvent())
+	}
+
 	return (
 		<section>
 			<div className='calendar-screen'>
@@ -64,6 +72,8 @@ const CalendarScreen = () => {
 					onSelectEvent={selectEventHandler}
 					onView={onViewChange}
 					view={lastView}
+					onSelectSlot={onSelectSlot}
+					selectable={true}
 				/>
 			</div>
 			<AddNewFab />
