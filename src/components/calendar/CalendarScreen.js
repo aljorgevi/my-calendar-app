@@ -11,13 +11,14 @@ import 'moment/locale/es'
 import CalendarEvent from './CalendarEvent'
 import CalendarModal from './CalendarModal'
 import AddNewFab from '../ui/AddNewFab'
+import EventDeleteFab from '../ui/EventDeleteFab'
 
 moment.locale('es')
 
 const localizer = momentLocalizer(moment)
 
 const CalendarScreen = () => {
-	const { events } = useSelector(store => store.calendar)
+	const { events, activeEvents } = useSelector(store => store.calendar)
 	const dispatch = useDispatch()
 	const [lastView, setLastView] = useState(
 		localStorage.getItem('lastView') || 'month'
@@ -66,6 +67,7 @@ const CalendarScreen = () => {
 				/>
 			</div>
 			<AddNewFab />
+			{activeEvents && <EventDeleteFab />}
 			<CalendarModal />
 		</section>
 	)

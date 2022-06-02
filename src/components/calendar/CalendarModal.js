@@ -39,6 +39,8 @@ const CalendarModal = () => {
 	useEffect(() => {
 		if (activeEvents) {
 			setFormValues(activeEvents)
+		} else {
+			setFormValues(defaultValues)
 		}
 	}, [activeEvents])
 
