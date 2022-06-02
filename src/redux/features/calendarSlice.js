@@ -4,6 +4,7 @@ import moment from 'moment'
 const initialState = {
 	events: [
 		{
+			id: new Date().getTime(),
 			title: 'All Day Event',
 			start: moment().toDate(),
 			end: moment().add(2, 'hours').toDate(),
@@ -33,11 +34,20 @@ const calendarSlice = createSlice({
 		},
 		clearActiveNote: state => {
 			state.activeEvents = null
+		},
+		eventUpdated: (state, action) => {
+			const id = action.payload.id
+			state.events = state.events.map(event => {
+				if (event.id === id) {
+					return action.payload
+				}
+				return event
+			})
 		}
 	}
 })
 
-export const { addEvent, setActiveEvent, clearActiveNote } =
+export const { addEvent, setActiveEvent, clearActiveNote, eventUpdated } =
 	calendarSlice.actions
 
 export default calendarSlice.reducer
