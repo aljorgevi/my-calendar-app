@@ -16,13 +16,38 @@ export const userLogin = createAsyncThunk(
 		try {
 			const response = await fetchWithToken('login', loginDetails, 'POST');
 			const body = response.data;
-			console.log({ body });
 			localStorage.setItem('token', body.token);
 			localStorage.setItem('token-init-date', new Date().getTime());
 			return body;
 		} catch (error) {
 			// TODO: config axios to send the error message
-			return error.response.data.error;
+			return Swal.fire({
+				title: 'Error',
+				text: error.response.data.error,
+				icon: 'error'
+			});
+		}
+	}
+);
+
+export const userRegister = createAsyncThunk(
+	'users/userRegister',
+	async registerDetails => {
+		try {
+			console.log('inside try');
+			const response = await fetchWithToken(
+				'users/new-user',
+				registerDetails,
+				'POST'
+			);
+
+			return response.data;
+		} catch (error) {
+			return Swal.fire({
+				title: 'Error',
+				text: error.response.data.error,
+				icon: 'error'
+			});
 		}
 	}
 );
@@ -51,6 +76,19 @@ const userSlice = createSlice({
 		builder.addCase(userLogin.rejected, (state, action) => {
 			console.log('rejected');
 			console.log({ action });
+		});
+		builder.addCase(userRegister.pending, (state, action) => {
+			console.log('pending');
+			console.log({ action });
+		});
+		builder.addCase(userRegister.rejected, (state, action) => {
+			console.log('rejected');
+			console.log({ action });
+		});
+		builder.addCase(userRegister.fulfilled, (state, action) => {
+			// TODO: this mean the request finished, not necessarily it was success
+			console.log('fulfilled');
+			const userReturned = action.payload;
 		});
 	}
 });
