@@ -2,16 +2,27 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchWithToken } from '../../helpers';
 
 const initialState = {
-	IsAuthenticated: false
+	IsAuthenticated: false,
+	userId: null,
+	userName: null
 };
 
 /* endpoint, data, method = 'GET' */
+//  TODO: add validation if error
 export const userLogin = createAsyncThunk(
 	'users/userLogin',
 	async loginDetails => {
-		const response = await fetchWithToken('login', loginDetails, 'POST');
-		console.log({ response });
-		return response;
+		try {
+			const response = await fetchWithToken('login', loginDetails, 'POST');
+
+			if (response.status === 200) {
+				localStorage.setItem('token', response.data.token);
+				localStorage.setItem('token-init-date', new Date().getTime());
+				return response.data;
+			}
+		} catch (error) {
+			console.error(error);
+		}
 	}
 );
 
@@ -28,8 +39,9 @@ const userSlice = createSlice({
 	},
 	extraReducers: builder => {
 		builder.addCase(userLogin.fulfilled, (state, action) => {
-			console.log({ state, action });
 			state.IsAuthenticated = true;
+			state.userId = action.payload.id;
+			state.userName = action.payload.userName;
 		});
 	}
 });
