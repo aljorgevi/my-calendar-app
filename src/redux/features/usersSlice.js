@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import Swal from 'sweetalert2';
 import { fetchWithToken } from '../../helpers';
 
 const initialState = {
@@ -14,14 +15,14 @@ export const userLogin = createAsyncThunk(
 	async loginDetails => {
 		try {
 			const response = await fetchWithToken('login', loginDetails, 'POST');
-
-			if (response.status === 200) {
-				localStorage.setItem('token', response.data.token);
-				localStorage.setItem('token-init-date', new Date().getTime());
-				return response.data;
-			}
+			const body = response.data;
+			console.log({ body });
+			localStorage.setItem('token', body.token);
+			localStorage.setItem('token-init-date', new Date().getTime());
+			return body;
 		} catch (error) {
-			console.error(error);
+			// TODO: config axios to send the error message
+			return error.response.data.error;
 		}
 	}
 );
@@ -38,10 +39,18 @@ const userSlice = createSlice({
 		UserLogout: (state, action) => {}
 	},
 	extraReducers: builder => {
+		builder.addCase(userLogin.pending, (state, action) => {
+			console.log('pending');
+			console.log({ action });
+		});
 		builder.addCase(userLogin.fulfilled, (state, action) => {
 			state.IsAuthenticated = true;
 			state.userId = action.payload.id;
 			state.userName = action.payload.userName;
+		});
+		builder.addCase(userLogin.rejected, (state, action) => {
+			console.log('rejected');
+			console.log({ action });
 		});
 	}
 });
