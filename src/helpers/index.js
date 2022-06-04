@@ -28,7 +28,7 @@ export const customStyles = {
 	}
 };
 
-export const fetchWithToken = (endpoint, loginDetails, method = 'GET') => {
+export const fetchWithoutToken = (endpoint, loginDetails, method = 'GET') => {
 	const url = `${BASE_URL}/${endpoint}`;
 	if (method === 'GET') {
 		return axios(url);

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import Swal from 'sweetalert2';
-import { fetchWithToken } from '../../helpers';
+import { fetchWithoutToken } from '../../helpers';
 
 const initialState = {
 	IsAuthenticated: false,
@@ -14,7 +14,7 @@ export const userLogin = createAsyncThunk(
 	'users/userLogin',
 	async loginDetails => {
 		try {
-			const response = await fetchWithToken('login', loginDetails, 'POST');
+			const response = await fetchWithoutToken('login', loginDetails, 'POST');
 			const body = response.data;
 			localStorage.setItem('token', body.token);
 			localStorage.setItem('token-init-date', new Date().getTime());
@@ -35,7 +35,7 @@ export const userRegister = createAsyncThunk(
 	async registerDetails => {
 		try {
 			console.log('inside try');
-			const response = await fetchWithToken(
+			const response = await fetchWithoutToken(
 				'users/new-user',
 				registerDetails,
 				'POST'
