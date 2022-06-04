@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import uiReducer from './features/uiSlice'
 import calendarReducer from './features/calendarSlice'
+import userSlice from './features/usersSlice'
 
 export const store = configureStore({
 	middleware: getDefaultMiddleware =>
@@ -9,6 +10,7 @@ export const store = configureStore({
 		}),
 	reducer: {
 		ui: uiReducer,
-		calendar: calendarReducer
+		calendar: calendarReducer,
+		users: userSlice
 	}
 })
