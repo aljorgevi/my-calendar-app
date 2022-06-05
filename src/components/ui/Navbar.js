@@ -1,13 +1,21 @@
+import { useSelector, useDispatch } from 'react-redux';
+import { logoutHandler } from '../../redux/features/usersSlice';
+
 const Navbar = () => {
-  return (
-    <div className='navbar navbar-dark bg-dark mb-4'>
-      <span className='navbar-brand'>Jorge</span>
+	const dispatch = useDispatch();
+	const { username } = useSelector(store => store.users);
 
-      <button className='btn btn-outline-danger'>
-        <i className='fas fa-sign'></i> Salir
-      </button>
-    </div>
-  )
-}
+	const handleClick = () => dispatch(logoutHandler());
 
-export default Navbar
+	return (
+		<div className='navbar navbar-dark bg-dark mb-4'>
+			<span className='navbar-brand'>{username}</span>
+
+			<button className='btn btn-outline-danger' onClick={handleClick}>
+				<i className='fas fa-sign'></i> Salir
+			</button>
+		</div>
+	);
+};
+
+export default Navbar;
