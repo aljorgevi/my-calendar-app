@@ -82,3 +82,8 @@ body {
 	left: 25px;
 	padding: 10px;
 }
+
+.MuiSnackbar-anchorOriginTopRight {
+	top: 0;
+	right: 0;
+}

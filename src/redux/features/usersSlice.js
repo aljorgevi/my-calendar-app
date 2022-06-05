@@ -5,13 +5,17 @@ import { fetchWithoutToken } from '../../helpers';
 const initialState = {
 	IsAuthenticated: false,
 	userId: null,
-	userName: null
+	userName: null,
+	showSuccessSnackbar: false,
+	showErrorSnackbar: false,
+	errorMessage: null
 };
 
 /* endpoint, data, method = 'GET' */
 //  TODO: add validation if error
-export const userLogin = createAsyncThunk(
-	'users/userLogin',
+// TODO: handle the expiresIn
+export const loginHandler = createAsyncThunk(
+	'users/loginHandler',
 	async loginDetails => {
 		try {
 			const response = await fetchWithoutToken('login', loginDetails, 'POST');
@@ -20,12 +24,16 @@ export const userLogin = createAsyncThunk(
 			localStorage.setItem('token-init-date', new Date().getTime());
 			return body;
 		} catch (error) {
-			// TODO: config axios to send the error message
-			return Swal.fire({
-				title: 'Error',
-				text: error.response.data.error,
-				icon: 'error'
-			});
+			let errorMessage = 'Authentication failed';
+			if (error.response.data.error) {
+				errorMessage = error.response.data.error;
+			}
+
+			// return Swal.fire({
+			// 	title: 'Error',
+			// 	text: errorMessage,
+			// 	icon: 'error'
+			// });
 		}
 	}
 );
@@ -34,20 +42,21 @@ export const userRegister = createAsyncThunk(
 	'users/userRegister',
 	async registerDetails => {
 		try {
-			console.log('inside try');
 			const response = await fetchWithoutToken(
 				'users/new-user',
 				registerDetails,
 				'POST'
 			);
+			const userDetails = response.data;
 
-			return response.data;
+			return { error: false, userDetails };
 		} catch (error) {
-			return Swal.fire({
-				title: 'Error',
-				text: error.response.data.error,
-				icon: 'error'
-			});
+			let errorMessage = 'Authentication failed';
+			if (error.response.data.error) {
+				errorMessage = error.response.data.error;
+			}
+
+			return { error: true, errorMessage };
 		}
 	}
 );
@@ -61,19 +70,22 @@ const userSlice = createSlice({
 		UserStarted: (state, action) => {},
 		UserRegister: (state, action) => {},
 		UserRenew: (state, action) => {},
-		UserLogout: (state, action) => {}
+		UserLogout: (state, action) => {},
+		onCloseErrorSnackbar: (state, action) => {
+			state.showErrorSnackbar = false;
+		}
 	},
 	extraReducers: builder => {
-		builder.addCase(userLogin.pending, (state, action) => {
+		builder.addCase(loginHandler.pending, (state, action) => {
 			console.log('pending');
 			console.log({ action });
 		});
-		builder.addCase(userLogin.fulfilled, (state, action) => {
+		builder.addCase(loginHandler.fulfilled, (state, action) => {
 			state.IsAuthenticated = true;
 			state.userId = action.payload.id;
 			state.userName = action.payload.userName;
 		});
-		builder.addCase(userLogin.rejected, (state, action) => {
+		builder.addCase(loginHandler.rejected, (state, action) => {
 			console.log('rejected');
 			console.log({ action });
 		});
@@ -86,13 +98,14 @@ const userSlice = createSlice({
 			console.log({ action });
 		});
 		builder.addCase(userRegister.fulfilled, (state, action) => {
-			// TODO: this mean the request finished, not necessarily it was success
-			console.log('fulfilled');
-			const userReturned = action.payload;
+			if (action.payload.error) {
+				state.showErrorSnackbar = true;
+				state.errorMessage = action.payload.errorMessage;
+			}
 		});
 	}
 });
 
-export const { authenticate } = userSlice.actions;
+export const { authenticate, onCloseErrorSnackbar } = userSlice.actions;
 
 export default userSlice.reducer;

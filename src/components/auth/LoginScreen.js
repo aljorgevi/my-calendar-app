@@ -1,11 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { userLogin, userRegister } from '../../redux/features/usersSlice';
+import {
+	loginHandler,
+	userRegister,
+	onCloseErrorSnackbar
+} from '../../redux/features/usersSlice';
 import { useForm } from '../../hooks/useForm';
 import './login.css';
 import Swal from 'sweetalert2';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+	return <MuiAlert elevation={6} ref={ref} variant='filled' {...props} />;
+});
 
 export default function LoginScreen() {
+	const [open, setOpen] = useState(false);
+	const { showSuccessSnackbar, showErrorSnackbar, errorMessage } = useSelector(
+		store => store.users
+	);
 	const dispatch = useDispatch();
 	const [formLoginValues, handleLoginInputChange] = useForm({
 		login_email: 'admin@email.com',
@@ -36,7 +50,7 @@ export default function LoginScreen() {
 			password: login_password
 		};
 
-		dispatch(userLogin(loginDetails));
+		dispatch(loginHandler(loginDetails));
 	};
 
 	const handleRegisterSubmit = event => {
@@ -57,6 +71,18 @@ export default function LoginScreen() {
 		};
 
 		dispatch(userRegister(registerDetails));
+	};
+
+	const handleClose = (event, reason) => {
+		if (reason === 'clickaway') {
+			return;
+		}
+
+		setOpen(false);
+	};
+
+	const handleCloseErrorSnackbar = () => {
+		dispatch(onCloseErrorSnackbar());
 	};
 
 	return (
@@ -142,6 +168,29 @@ export default function LoginScreen() {
 					</form>
 				</div>
 			</div>
+			<Snackbar
+				open={showSuccessSnackbar}
+				autoHideDuration={1000}
+				onClose={handleClose}
+			>
+				<Alert onClose={handleClose} severity='success' sx={{ width: '100%' }}>
+					This is a success message!
+				</Alert>
+			</Snackbar>
+			<Snackbar
+				open={showErrorSnackbar}
+				autoHideDuration={3000}
+				onClose={handleCloseErrorSnackbar}
+				anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+			>
+				<Alert
+					onClose={handleCloseErrorSnackbar}
+					severity='error'
+					sx={{ width: '100%' }}
+				>
+					{errorMessage}
+				</Alert>
+			</Snackbar>
 		</div>
 	);
 }
