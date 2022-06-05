@@ -51,7 +51,6 @@ export const checkForTokenData = createAsyncThunk(
 		const tokenData = retrieveStoredToken();
 
 		if (tokenData) {
-			console.log('tokenData', tokenData.duration);
 			const logoutTimer = setTimeout(logoutHandler, tokenData.duration);
 			dispatch(logoutTimerHandler(logoutTimer));
 		}
@@ -167,6 +166,8 @@ const userSlice = createSlice({
 			state.logoutTimer = action.payload;
 		},
 		tokenDataHandler: (state, action) => {
+			// TODO: where is my username? and id?
+			// IF LOGIN I HAVE M YUSERNAME AND IF REFRESH I LOST IT.
 			state.tokenData = action.payload;
 			if (action.payload) {
 				state.isLoggedIn = true;
