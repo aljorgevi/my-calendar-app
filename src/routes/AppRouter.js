@@ -9,8 +9,9 @@ import PublicRoute from './PublicRoute';
 
 export default function AppRouter() {
 	const dispatch = useDispatch();
-	const { isCheckingRenew, isLoggedIn } = useSelector(store => store.users);
+	const { isCheckingRenew } = useSelector(store => store.users);
 
+	// TODO: instead for checking for renew all the time, we can do it wonly when is about to expire
 	useEffect(() => {
 		dispatch(renewToken());
 	}, [dispatch]);
@@ -27,7 +28,7 @@ export default function AppRouter() {
 					exact
 					path='/login'
 					element={
-						<PublicRoute isAuthenticated={isLoggedIn}>
+						<PublicRoute>
 							<LoginScreen />
 						</PublicRoute>
 					}
@@ -36,7 +37,7 @@ export default function AppRouter() {
 					exact
 					path='/'
 					element={
-						<PrivateRoute isAuthenticated={isLoggedIn}>
+						<PrivateRoute>
 							<CalendarApp />
 						</PrivateRoute>
 					}
