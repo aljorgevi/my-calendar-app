@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { renewToken } from '../redux/features/usersSlice';
 import LoginScreen from '../components/auth/LoginScreen';
-import CalendarApp from '../components/CalendarApp';
+import CalendarScreen from '../components/calendar/CalendarScreen';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
 
@@ -38,7 +38,7 @@ export default function AppRouter() {
 					path='/'
 					element={
 						<PrivateRoute>
-							<CalendarApp />
+							<CalendarScreen />
 						</PrivateRoute>
 					}
 				/>
