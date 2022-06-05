@@ -1,31 +1,12 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { renewToken } from './redux/features/usersSlice';
-import LoginScreen from './components/auth/LoginScreen';
-import CalendarApp from './components/CalendarApp';
-import MaterialUiApp from './MaterialUiApp';
+import React from 'react';
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
+import AppRouter from './routes/AppRouter';
 
-export default function App() {
-	const dispatch = useDispatch();
-	const { isCheckingRenew } = useSelector(store => store.users);
-
-	useEffect(() => {
-		dispatch(renewToken());
-	}, [dispatch]);
-
-	if (isCheckingRenew) {
-		// TODO: create a loading in the middle of the screen
-		return <div>Checking token...</div>;
-	}
-
+export default function CalendarApp() {
 	return (
-		<BrowserRouter>
-			<Routes>
-				<Route exact path='/login' element={<LoginScreen />} />
-				<Route exact path='/' element={<CalendarApp />} />
-				<Route path='/material' element={<MaterialUiApp />} />
-			</Routes>
-		</BrowserRouter>
+		<Provider store={store}>
+			<AppRouter />
+		</Provider>
 	);
 }
