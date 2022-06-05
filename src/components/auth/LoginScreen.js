@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
 	loginHandler,
 	userRegister,
-	onCloseErrorSnackbar
+	onCloseErrorSnackbar,
+	onCloseSuccessSnackbar
 } from '../../redux/features/usersSlice';
 import { useForm } from '../../hooks/useForm';
 import './login.css';
@@ -17,9 +18,12 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 export default function LoginScreen() {
 	const [open, setOpen] = useState(false);
-	const { showSuccessSnackbar, showErrorSnackbar, errorMessage } = useSelector(
-		store => store.users
-	);
+	const {
+		showSuccessSnackbar,
+		showErrorSnackbar,
+		errorMessage,
+		successMessage
+	} = useSelector(store => store.users);
 	const dispatch = useDispatch();
 	const [formLoginValues, handleLoginInputChange] = useForm({
 		login_email: 'admin@email.com',
@@ -28,7 +32,7 @@ export default function LoginScreen() {
 
 	const { login_email, login_password } = formLoginValues;
 
-	const [formRegisternValues, handleRegisterInputChange] = useForm({
+	const [formRegisternValues, handleRegisterInputChange, reset] = useForm({
 		register_username: '',
 		register_email: '',
 		register_password: '',
@@ -70,19 +74,26 @@ export default function LoginScreen() {
 			password: register_password
 		};
 
-		dispatch(userRegister(registerDetails));
+		dispatch(userRegister(registerDetails)).then(res => {
+			if (!res.payload.error) {
+				reset();
+			}
+		});
 	};
 
-	const handleClose = (event, reason) => {
+	const handleCloseErrorSnackbar = (_, reason) => {
 		if (reason === 'clickaway') {
 			return;
 		}
 
-		setOpen(false);
+		dispatch(onCloseErrorSnackbar());
 	};
 
-	const handleCloseErrorSnackbar = () => {
-		dispatch(onCloseErrorSnackbar());
+	const handleCloseSuccessSnackbar = (_, reason) => {
+		if (reason === 'clickaway') {
+			return;
+		}
+		dispatch(onCloseSuccessSnackbar());
 	};
 
 	return (
@@ -170,11 +181,16 @@ export default function LoginScreen() {
 			</div>
 			<Snackbar
 				open={showSuccessSnackbar}
-				autoHideDuration={1000}
-				onClose={handleClose}
+				autoHideDuration={3000}
+				onClose={handleCloseSuccessSnackbar}
+				anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
 			>
-				<Alert onClose={handleClose} severity='success' sx={{ width: '100%' }}>
-					This is a success message!
+				<Alert
+					onClose={handleCloseSuccessSnackbar}
+					severity='success'
+					sx={{ width: '100%' }}
+				>
+					{successMessage}
 				</Alert>
 			</Snackbar>
 			<Snackbar

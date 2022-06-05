@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import Swal from 'sweetalert2';
 import { fetchWithoutToken } from '../../helpers';
 
 const initialState = {
@@ -8,7 +7,8 @@ const initialState = {
 	userName: null,
 	showSuccessSnackbar: false,
 	showErrorSnackbar: false,
-	errorMessage: null
+	errorMessage: null,
+	successMessage: null
 };
 
 /* endpoint, data, method = 'GET' */
@@ -73,6 +73,9 @@ const userSlice = createSlice({
 		UserLogout: (state, action) => {},
 		onCloseErrorSnackbar: (state, action) => {
 			state.showErrorSnackbar = false;
+		},
+		onCloseSuccessSnackbar: (state, action) => {
+			state.showSuccessSnackbar = false;
 		}
 	},
 	extraReducers: builder => {
@@ -101,11 +104,16 @@ const userSlice = createSlice({
 			if (action.payload.error) {
 				state.showErrorSnackbar = true;
 				state.errorMessage = action.payload.errorMessage;
+				return;
 			}
+
+			state.showSuccessSnackbar = true;
+			state.successMessage = 'User created successfully';
 		});
 	}
 });
 
-export const { authenticate, onCloseErrorSnackbar } = userSlice.actions;
+export const { authenticate, onCloseErrorSnackbar, onCloseSuccessSnackbar } =
+	userSlice.actions;
 
 export default userSlice.reducer;
