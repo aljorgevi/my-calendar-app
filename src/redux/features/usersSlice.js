@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithoutToken } from '../../helpers';
+import { fetchWithoutToken, fetchWithToken } from '../../helpers';
 
 const initialState = {
 	IsAuthenticated: false,
@@ -22,18 +22,14 @@ export const loginHandler = createAsyncThunk(
 			const body = response.data;
 			localStorage.setItem('token', body.token);
 			localStorage.setItem('token-init-date', new Date().getTime());
-			return body;
+
+			return { error: false, body };
 		} catch (error) {
 			let errorMessage = 'Authentication failed';
 			if (error.response.data.error) {
 				errorMessage = error.response.data.error;
 			}
-
-			// return Swal.fire({
-			// 	title: 'Error',
-			// 	text: errorMessage,
-			// 	icon: 'error'
-			// });
+			return { error: true, errorMessage };
 		}
 	}
 );
@@ -61,6 +57,24 @@ export const userRegister = createAsyncThunk(
 	}
 );
 
+export const renewToken = createAsyncThunk('users/renewToken', async () => {
+	try {
+		const response = await fetchWithToken('users/renew-token');
+		const body = response.data;
+		localStorage.setItem('token', body.token);
+		// TODO: maybe change the name of the key
+		localStorage.setItem('token-init-date', new Date().getTime());
+		return { error: false, body };
+	} catch (error) {
+		let errorMessage = 'Authentication failed';
+		if (error.response.data.error) {
+			errorMessage = error.response.data.error;
+		}
+
+		return { error: true, errorMessage };
+	}
+});
+
 const userSlice = createSlice({
 	name: 'users',
 	initialState,
@@ -84,6 +98,13 @@ const userSlice = createSlice({
 			console.log({ action });
 		});
 		builder.addCase(loginHandler.fulfilled, (state, action) => {
+			// TODO: ADD VALIDATION FOR LOGIN
+			if (action.payload.error) {
+				// state.showErrorSnackbar = true;
+				// state.errorMessage = action.payload.errorMessage;
+				// return;
+			}
+
 			state.IsAuthenticated = true;
 			state.userId = action.payload.id;
 			state.userName = action.payload.userName;

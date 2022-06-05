@@ -39,19 +39,27 @@ export const fetchWithoutToken = (endpoint, loginDetails, method = 'GET') => {
 			data: loginDetails
 		});
 	}
+};
 
-	// const token = localStorage.getItem('token');
-	// const headers = {
-	// 	'Content-Type': 'application/json'
-	// };
-
-	// if (token) {
-	// 	headers['Authorization'] = `Bearer ${token}`;
-	// }
-
-	// return fetch(`${BASE_URL}/${endpoint}`, {
-	// 	method,
-	// 	headers,
-	// 	body: JSON.stringify(data)
-	// });
+export const fetchWithToken = (endpoint, data, method = 'GET') => {
+	const url = `${BASE_URL}/${endpoint}`;
+	const token = localStorage.getItem('token');
+	if (method === 'GET') {
+		return axios({
+			method,
+			url,
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		});
+	} else {
+		return axios({
+			method,
+			url,
+			data,
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		});
+	}
 };
