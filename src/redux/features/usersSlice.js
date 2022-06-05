@@ -2,9 +2,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchWithoutToken, fetchWithToken } from '../../helpers';
 
 const initialState = {
-	IsAuthenticated: false,
+	isCheckingRenew: true,
+	isLoading: false,
+	isLoggedIn: false,
 	userId: null,
-	userName: null,
+	username: null,
 	showSuccessSnackbar: false,
 	showErrorSnackbar: false,
 	errorMessage: null,
@@ -94,8 +96,7 @@ const userSlice = createSlice({
 	},
 	extraReducers: builder => {
 		builder.addCase(loginHandler.pending, (state, action) => {
-			console.log('pending');
-			console.log({ action });
+			state.isLoading = true;
 		});
 		builder.addCase(loginHandler.fulfilled, (state, action) => {
 			const result = action.payload;
@@ -103,26 +104,25 @@ const userSlice = createSlice({
 			if (!result.ok) {
 				state.errorMessage = result.error;
 				state.showErrorSnackbar = true;
+				return;
 			}
 
-			state.IsAuthenticated = true;
-			state.userId = action.payload.id;
-			state.userName = action.payload.userName;
+			state.isLoading = false;
+			state.isLoggedIn = true;
+			state.userId = result.body.id;
+			state.username = result.body.username;
 			// TODO: we will re-firect the user after being login to the home page, so we need to remove this later
 			state.showSuccessSnackbar = true;
 			state.successMessage = 'User created successfully';
 		});
 		builder.addCase(loginHandler.rejected, (state, action) => {
-			console.log('rejected');
-			console.log({ action });
+			state.isLoading = false;
 		});
 		builder.addCase(userRegister.pending, (state, action) => {
-			console.log('pending');
-			console.log({ action });
+			state.isLoading = true;
 		});
 		builder.addCase(userRegister.rejected, (state, action) => {
-			console.log('rejected');
-			console.log({ action });
+			state.isLoading = false;
 		});
 		builder.addCase(userRegister.fulfilled, (state, action) => {
 			const result = action.payload;
@@ -133,8 +133,29 @@ const userSlice = createSlice({
 				return;
 			}
 
+			state.isLoading = false;
 			state.showSuccessSnackbar = true;
 			state.successMessage = 'User created successfully';
+		});
+		builder.addCase(renewToken.pending, (state, action) => {
+			state.isCheckingRenew = true;
+		});
+		builder.addCase(renewToken.rejected, (state, action) => {
+			state.isCheckingRenew = false;
+		});
+		builder.addCase(renewToken.fulfilled, (state, action) => {
+			const result = action.payload;
+
+			if (!result.ok) {
+				state.isCheckingRenew = false;
+				state.isLoggedIn = false;
+				return;
+			}
+
+			state.isCheckingRenew = false;
+			state.isLoggedIn = true;
+			state.userId = result.body.id;
+			state.username = result.body.username;
 		});
 	}
 });

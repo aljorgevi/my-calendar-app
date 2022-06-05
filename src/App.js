@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { renewToken } from './redux/features/usersSlice';
 import LoginScreen from './components/auth/LoginScreen';
@@ -8,10 +8,16 @@ import MaterialUiApp from './MaterialUiApp';
 
 export default function App() {
 	const dispatch = useDispatch();
+	const { isCheckingRenew } = useSelector(store => store.users);
 
 	useEffect(() => {
 		dispatch(renewToken());
 	}, [dispatch]);
+
+	if (isCheckingRenew) {
+		// TODO: create a loading in the middle of the screen
+		return <div>Checking token...</div>;
+	}
 
 	return (
 		<BrowserRouter>
