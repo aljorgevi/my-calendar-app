@@ -17,9 +17,6 @@ const initialState = {
 	CheckingAuth: true
 };
 
-// TODO: check all the auth thing again, private route is not working well and the idea is to looks like platzi
-// and when I refresh in dasboard go to login and back ...
-
 const calculateRemainingTime = expirationTime => {
 	const currenTime = new Date().getTime();
 	const adjExpirationTime = new Date(expirationTime).getTime();
@@ -32,14 +29,16 @@ const calculateRemainingTime = expirationTime => {
 const retrieveStoredToken = () => {
 	const storedToken = localStorage.getItem('token');
 	const storedExpirationDate = localStorage.getItem('expirationTime');
+	// FIXME: This is a temporary, if we have a big app we may need to call the api to get user info every time...
 	const storedUserId = localStorage.getItem('userId');
 	const storedUsername = localStorage.getItem('username');
 
 	const remainingTime = calculateRemainingTime(storedExpirationDate);
+	console.log({ storedToken });
 
 	// one minute
-	// TODO: if less than 5 minutes, maybe call the renew token api
-	if (remainingTime <= 60000) {
+	// TODO: if less than 2 hours, maybe call the renew token api... and the token comes with a remining time like 1 month from the api
+	if (!storedToken || remainingTime <= 60000) {
 		localStorage.removeItem('token');
 		localStorage.removeItem('expirationTime');
 		return null;
@@ -80,7 +79,7 @@ export const loginHandler = createAsyncThunk(
 
 			localStorage.setItem('token', body.token);
 			localStorage.setItem('expirationTime', expirationTime);
-			// in a real app, probably will need to call the renew token api every refresh as we may need more information about the user.
+			// FIXME: in a real app, probably will need to call the renew token api every refresh as we may need more information about the user.
 			// if for example we have a profile or settings section, etc.
 			localStorage.setItem('userId', body.id);
 			localStorage.setItem('username', body.username);
@@ -150,6 +149,7 @@ export const logoutHandler = createAsyncThunk(
 	'users/logoutHandler',
 	async (props, { getState }) => {
 		const state = getState();
+
 		localStorage.removeItem('token');
 		localStorage.removeItem('expirationTime');
 
@@ -178,11 +178,13 @@ const userSlice = createSlice({
 			state.logoutTimer = action.payload;
 		},
 		tokenDataHandler: (state, action) => {
-			state.tokenData = action.payload;
-			if (action.payload) {
+			const tokenData = action.payload;
+			// TODO: not sure if we need this tokenData state. check videos of max.
+			state.tokenData = tokenData;
+			if (tokenData) {
 				state.isLoggedIn = true;
-				state.userId = action.payload.userId;
-				state.username = action.payload.username;
+				state.userId = tokenData.userId;
+				state.username = tokenData.username;
 			} else {
 				state.isLoggedIn = false;
 				state.userId = null;
