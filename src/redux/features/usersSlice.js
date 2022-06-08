@@ -29,9 +29,6 @@ const calculateRemainingTime = expirationTime => {
 const retrieveStoredToken = () => {
 	const storedToken = localStorage.getItem('token');
 	const storedExpirationDate = localStorage.getItem('expirationTime');
-	// FIXME: This is a temporary, if we have a big app we may need to call the api to get user info every time...
-	const storedUserId = localStorage.getItem('userId');
-	const storedUsername = localStorage.getItem('username');
 
 	const remainingTime = calculateRemainingTime(storedExpirationDate);
 	console.log({ storedToken });
@@ -46,26 +43,24 @@ const retrieveStoredToken = () => {
 
 	return {
 		token: storedToken,
-		duration: remainingTime,
-		userId: storedUserId,
-		username: storedUsername
+		duration: remainingTime
 	};
 };
 
-export const checkForTokenData = createAsyncThunk(
-	'users/checkForTokenData',
-	async (props, { dispatch }) => {
-		const tokenData = retrieveStoredToken();
+// export const checkForTokenData = createAsyncThunk(
+// 	'users/checkForTokenData',
+// 	async (props, { dispatch }) => {
+// 		const tokenData = retrieveStoredToken();
 
-		if (tokenData) {
-			console.log(tokenData.duration);
-			const logoutTimer = setTimeout(logoutHandler, tokenData.duration);
-			dispatch(logoutTimerHandler(logoutTimer));
-		}
+// 		if (tokenData) {
+// 			console.log(tokenData.duration);
+// 			const logoutTimer = setTimeout(logoutHandler, tokenData.duration);
+// 			dispatch(logoutTimerHandler(logoutTimer));
+// 		}
 
-		dispatch(tokenDataHandler(tokenData));
-	}
-);
+// 		dispatch(tokenDataHandler(tokenData));
+// 	}
+// );
 
 export const loginHandler = createAsyncThunk(
 	'users/loginHandler',
@@ -127,23 +122,23 @@ export const userRegister = createAsyncThunk(
 	}
 );
 
-// export const renewToken = createAsyncThunk('users/renewToken', async () => {
-// 	try {
-// 		const response = await fetchWithToken('users/renew-token');
-// 		const body = response.data;
-// 		localStorage.setItem('token', body.token);
-// 		// TODO: maybe change the name of the key
-// 		// localStorage.setItem('expirationTime', body.expiresIn);
-// 		return { ok: true, body };
-// 	} catch (error) {
-// 		let errorMessage = 'Authentication failed';
-// 		if (error.response.data.error) {
-// 			errorMessage = error.response.data.error;
-// 		}
+export const renewToken = createAsyncThunk('users/renewToken', async () => {
+	try {
+		const response = await fetchWithToken('users/renew-token');
+		const body = response.data;
+		localStorage.setItem('token', body.token);
+		localStorage.setItem('expirationTime', body.expiresIn);
 
-// 		return { ok: false, error: errorMessage };
-// 	}
-// });
+		return { ok: true, body };
+	} catch (error) {
+		let errorMessage = 'Authentication failed';
+		if (error.response.data.error) {
+			errorMessage = error.response.data.error;
+		}
+
+		return { ok: false, error: errorMessage };
+	}
+});
 
 export const logoutHandler = createAsyncThunk(
 	'users/logoutHandler',
@@ -170,6 +165,7 @@ useEffect(() => {
 }, []);
 */
 
+// TODO: CLEAN STATE.
 const userSlice = createSlice({
 	name: 'users',
 	initialState,
@@ -177,20 +173,20 @@ const userSlice = createSlice({
 		logoutTimerHandler: (state, action) => {
 			state.logoutTimer = action.payload;
 		},
-		tokenDataHandler: (state, action) => {
-			const tokenData = action.payload;
-			// TODO: not sure if we need this tokenData state. check videos of max.
-			state.tokenData = tokenData;
-			if (tokenData) {
-				state.isLoggedIn = true;
-				state.userId = tokenData.userId;
-				state.username = tokenData.username;
-			} else {
-				state.isLoggedIn = false;
-				state.userId = null;
-				state.username = null;
-			}
-		},
+		// tokenDataHandler: (state, action) => {
+		// 	const tokenData = action.payload;
+		// 	// TODO: not sure if we need this tokenData state. check videos of max.
+		// 	state.tokenData = tokenData;
+		// 	if (tokenData) {
+		// 		state.isLoggedIn = true;
+		// 		state.userId = tokenData.userId;
+		// 		state.username = tokenData.username;
+		// 	} else {
+		// 		state.isLoggedIn = false;
+		// 		state.userId = null;
+		// 		state.username = null;
+		// 	}
+		// },
 		UserStarted: (state, action) => {},
 		UserRegister: (state, action) => {},
 		needToRenew: (state, action) => {},
@@ -246,11 +242,20 @@ const userSlice = createSlice({
 			state.userId = null;
 			state.username = null;
 		});
-		builder.addCase(checkForTokenData.pending, (state, action) => {
+		builder.addCase(renewToken.pending, (state, action) => {
 			state.CheckingAuth = true;
 		});
-		builder.addCase(checkForTokenData.fulfilled, (state, action) => {
+		builder.addCase(renewToken.fulfilled, (state, action) => {
 			state.CheckingAuth = false;
+			if (action.payload.ok) {
+				state.isLoggedIn = true;
+				state.userId = action.payload.body.id;
+				state.username = action.payload.body.username;
+			} else {
+				state.isLoggedIn = false;
+				state.userId = null;
+				state.username = null;
+			}
 		});
 	}
 });
