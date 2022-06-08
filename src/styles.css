@@ -87,3 +87,11 @@ body {
 	top: 0;
 	right: 0;
 }
+
+.display-center {
+	background-color: #f8f5f2;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+}

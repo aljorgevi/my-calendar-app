@@ -13,7 +13,8 @@ const initialState = {
 	showSuccessSnackbar: false,
 	showErrorSnackbar: false,
 	errorMessage: null,
-	successMessage: null
+	successMessage: null,
+	CheckingAuth: true
 };
 
 // TODO: check all the auth thing again, private route is not working well and the idea is to looks like platzi
@@ -31,6 +32,8 @@ const calculateRemainingTime = expirationTime => {
 const retrieveStoredToken = () => {
 	const storedToken = localStorage.getItem('token');
 	const storedExpirationDate = localStorage.getItem('expirationTime');
+	const storedUserId = localStorage.getItem('userId');
+	const storedUsername = localStorage.getItem('username');
 
 	const remainingTime = calculateRemainingTime(storedExpirationDate);
 
@@ -42,7 +45,12 @@ const retrieveStoredToken = () => {
 		return null;
 	}
 
-	return { token: storedToken, duration: remainingTime };
+	return {
+		token: storedToken,
+		duration: remainingTime,
+		userId: storedUserId,
+		username: storedUsername
+	};
 };
 
 export const checkForTokenData = createAsyncThunk(
@@ -51,6 +59,7 @@ export const checkForTokenData = createAsyncThunk(
 		const tokenData = retrieveStoredToken();
 
 		if (tokenData) {
+			console.log(tokenData.duration);
 			const logoutTimer = setTimeout(logoutHandler, tokenData.duration);
 			dispatch(logoutTimerHandler(logoutTimer));
 		}
@@ -71,10 +80,13 @@ export const loginHandler = createAsyncThunk(
 
 			localStorage.setItem('token', body.token);
 			localStorage.setItem('expirationTime', expirationTime);
+			// in a real app, probably will need to call the renew token api every refresh as we may need more information about the user.
+			// if for example we have a profile or settings section, etc.
+			localStorage.setItem('userId', body.id);
+			localStorage.setItem('username', body.username);
 
 			const remainingTime = calculateRemainingTime(expirationTime);
 
-			console.log({ remainingTime });
 			// setTimeout return a reference we save it in logoutTimer
 			const logoutTimer = setTimeout(() => {
 				localStorage.removeItem('token');
@@ -116,23 +128,23 @@ export const userRegister = createAsyncThunk(
 	}
 );
 
-export const renewToken = createAsyncThunk('users/renewToken', async () => {
-	try {
-		const response = await fetchWithToken('users/renew-token');
-		const body = response.data;
-		localStorage.setItem('token', body.token);
-		// TODO: maybe change the name of the key
-		// localStorage.setItem('expirationTime', body.expiresIn);
-		return { ok: true, body };
-	} catch (error) {
-		let errorMessage = 'Authentication failed';
-		if (error.response.data.error) {
-			errorMessage = error.response.data.error;
-		}
+// export const renewToken = createAsyncThunk('users/renewToken', async () => {
+// 	try {
+// 		const response = await fetchWithToken('users/renew-token');
+// 		const body = response.data;
+// 		localStorage.setItem('token', body.token);
+// 		// TODO: maybe change the name of the key
+// 		// localStorage.setItem('expirationTime', body.expiresIn);
+// 		return { ok: true, body };
+// 	} catch (error) {
+// 		let errorMessage = 'Authentication failed';
+// 		if (error.response.data.error) {
+// 			errorMessage = error.response.data.error;
+// 		}
 
-		return { ok: false, error: errorMessage };
-	}
-});
+// 		return { ok: false, error: errorMessage };
+// 	}
+// });
 
 export const logoutHandler = createAsyncThunk(
 	'users/logoutHandler',
@@ -166,8 +178,6 @@ const userSlice = createSlice({
 			state.logoutTimer = action.payload;
 		},
 		tokenDataHandler: (state, action) => {
-			// TODO: where is my username? and id?
-			// IF LOGIN I HAVE M YUSERNAME AND IF REFRESH I LOST IT.
 			state.tokenData = action.payload;
 			if (action.payload) {
 				state.isLoggedIn = true;
@@ -229,30 +239,16 @@ const userSlice = createSlice({
 			state.showSuccessSnackbar = true;
 			state.successMessage = 'User created successfully';
 		});
-		builder.addCase(renewToken.pending, (state, action) => {
-			state.isCheckingRenew = true;
-		});
-		builder.addCase(renewToken.rejected, (state, action) => {
-			state.isCheckingRenew = false;
-		});
-		builder.addCase(renewToken.fulfilled, (state, action) => {
-			const result = action.payload;
-
-			if (!result.ok) {
-				state.isCheckingRenew = false;
-				state.isLoggedIn = false;
-				return;
-			}
-
-			state.isCheckingRenew = false;
-			state.isLoggedIn = true;
-			state.userId = result.body.id;
-			state.username = result.body.username;
-		});
 		builder.addCase(logoutHandler.fulfilled, (state, action) => {
 			state.isLoggedIn = false;
 			state.userId = null;
 			state.username = null;
+		});
+		builder.addCase(checkForTokenData.pending, (state, action) => {
+			state.CheckingAuth = true;
+		});
+		builder.addCase(checkForTokenData.fulfilled, (state, action) => {
+			state.CheckingAuth = false;
 		});
 	}
 });

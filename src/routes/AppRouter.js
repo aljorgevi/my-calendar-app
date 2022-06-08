@@ -1,30 +1,32 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { renewToken, checkForTokenData } from '../redux/features/usersSlice';
+import { checkForTokenData } from '../redux/features/usersSlice';
 import LoginScreen from '../components/auth/LoginScreen';
 import CalendarScreen from '../components/calendar/CalendarScreen';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 
 export default function AppRouter() {
 	const dispatch = useDispatch();
-	const { isCheckingRenew } = useSelector(store => store.users);
-
-	// TODO: instead for checking for renew all the time, we can do it wonly when is about to expire
-	// useEffect(() => {
-	// 	dispatch(renewToken());
-	// }, [dispatch]);
+	const { CheckingAuth } = useSelector(store => store.users);
 
 	useEffect(() => {
 		console.log('render');
 		dispatch(checkForTokenData());
 	}, [dispatch]);
 
-	// if (isCheckingRenew) {
-	// 	// TODO: create a loading in the middle of the screen
-	// 	return <div>Checking token...</div>;
-	// }
+	if (CheckingAuth) {
+		return (
+			<div className='display-center'>
+				<Box sx={{ display: 'flex' }}>
+					<CircularProgress />
+				</Box>
+			</div>
+		);
+	}
 
 	return (
 		<BrowserRouter>
