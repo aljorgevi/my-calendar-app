@@ -1,21 +1,22 @@
-import { useState, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import DateTimePicker from 'react-datetime-picker'
-import moment from 'moment'
-import Modal from 'react-modal'
-import Swal from 'sweetalert2'
-import { customStyles } from '../../helpers'
-import { closeModal } from '../../redux/features/uiSlice'
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import DateTimePicker from 'react-datetime-picker';
+import moment from 'moment';
+import Modal from 'react-modal';
+import Swal from 'sweetalert2';
+import { customStyles } from '../../helpers';
+import { closeModal } from '../../redux/features/uiSlice';
 import {
 	addEvent,
 	clearActiveEvent,
-	eventUpdated
-} from '../../redux/features/calendarSlice'
+	eventUpdated,
+	onAddNewEvent
+} from '../../redux/features/calendarSlice';
 
-Modal.setAppElement('#root')
+Modal.setAppElement('#root');
 
-const now = moment().minutes(0).seconds(0).add(1, 'hours')
-const _end = now.clone().add(3, 'hours')
+const now = moment().minutes(0).seconds(0).add(1, 'hours');
+const _end = now.clone().add(3, 'hours');
 
 const defaultValues = {
 	id: new Date().getTime(),
@@ -23,94 +24,85 @@ const defaultValues = {
 	notes: '',
 	start: now.toDate(),
 	end: _end.toDate()
-}
+};
 
 const CalendarModal = () => {
-	const dispatch = useDispatch()
-	const { isModalOpen } = useSelector(store => store.ui)
-	const { activeEvents } = useSelector(store => store.calendar)
-	const [startDate, setStartDate] = useState(now.toDate())
-	const [endDate, setEndDate] = useState(_end.toDate())
-	const [isTitleValid, setIsTitleValid] = useState(true)
-	const [formValues, setFormValues] = useState(defaultValues)
+	const dispatch = useDispatch();
+	const { isModalOpen } = useSelector(store => store.ui);
+	const { activeEvents } = useSelector(store => store.calendar);
+	const [startDate, setStartDate] = useState(now.toDate());
+	const [endDate, setEndDate] = useState(_end.toDate());
+	const [isTitleValid, setIsTitleValid] = useState(true);
+	const [formValues, setFormValues] = useState(defaultValues);
 
-	const { notes, title, start, end } = formValues
+	const { notes, title, start, end } = formValues;
 
 	useEffect(() => {
 		if (activeEvents) {
-			setFormValues(activeEvents)
+			setFormValues(activeEvents);
 		} else {
-			setFormValues(defaultValues)
+			setFormValues(defaultValues);
 		}
-	}, [activeEvents])
+	}, [activeEvents]);
 
 	const handleStartDateChange = date => {
-		setStartDate(date)
-		setFormValues({ ...formValues, start: date })
-	}
+		setStartDate(date);
+		setFormValues({ ...formValues, start: date });
+	};
 
 	const handleEndDateChange = date => {
-		setEndDate(date)
-		setFormValues({ ...formValues, end: date })
-	}
+		setEndDate(date);
+		setFormValues({ ...formValues, end: date });
+	};
 
 	const closeModalHandler = () => {
-		dispatch(closeModal())
-		dispatch(clearActiveEvent())
-		setFormValues(defaultValues)
-	}
+		dispatch(closeModal());
+		dispatch(clearActiveEvent());
+		setFormValues(defaultValues);
+	};
 
 	const handleInputChange = event => {
 		setFormValues({
 			...formValues,
 			[event.target.name]: event.target.value
-		})
-	}
+		});
+	};
 
 	const handleSubmit = event => {
-		event.preventDefault()
+		event.preventDefault();
 
 		// start & end are normal instances of Date of JS but we need to convert them to moment instances in order to compare them
 		// because moment have a method to compare dates
-		const momentStart = moment(start)
-		const momentEnd = moment(end)
+		const momentStart = moment(start);
+		const momentEnd = moment(end);
 
 		if (momentStart.isSameOrAfter(momentEnd)) {
 			return Swal.fire(
 				'Error',
 				'La fecha de inicio debe ser anterior a la fecha de fin',
 				'error'
-			)
+			);
 		}
 
 		if (title.trim().length < 2) {
 			// TODO: we could add as well a errorMessage to display it in the form saying the title is too short
-			return setIsTitleValid(false)
+			return setIsTitleValid(false);
 		}
 
 		if (activeEvents) {
-			dispatch(eventUpdated(formValues))
+			dispatch(eventUpdated(formValues));
 		} else {
-			// save in db
-			dispatch(
-				addEvent({
-					id: new Date().getTime(),
-					user: {
-						_id: '123',
-						name: 'John Doe'
-					},
-					...formValues
-				})
-			)
+			// save in db & display in UI
+			dispatch(onAddNewEvent(formValues));
 		}
 
 		// TODO: we could add a successMessage to display it in the form saying the event was added successfully
-		dispatch(closeModal())
-		setFormValues(defaultValues)
+		dispatch(closeModal());
+		setFormValues(defaultValues);
 
-		setIsTitleValid(true)
-		closeModal()
-	}
+		setIsTitleValid(true);
+		closeModal();
+	};
 
 	return (
 		<div>
@@ -187,7 +179,7 @@ const CalendarModal = () => {
 				</form>
 			</Modal>
 		</div>
-	)
-}
+	);
+};
 
-export default CalendarModal
+export default CalendarModal;

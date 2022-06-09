@@ -1,5 +1,6 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import moment from 'moment'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import moment from 'moment';
+import { fetchWithoutToken, fetchWithToken } from '../../helpers';
 
 const initialState = {
 	events: [
@@ -16,42 +17,84 @@ const initialState = {
 		}
 	],
 	activeEvents: null
-}
+};
+
+export const onAddNewEvent = createAsyncThunk(
+	'calendar/onAddNewEvent',
+	async (event, { dispatch, getState }) => {
+		// getState().calendar.events.push(event);
+		const { username, userId } = getState().users;
+
+		try {
+			const response = await fetchWithToken('events', event, 'POST');
+			const body = response.data;
+
+			const eventToBeDisplayed = {
+				id: body.id,
+				title: body.title,
+				start: body.start,
+				end: body.end,
+				bgColor: '#f56954',
+				user: {
+					_id: userId,
+					name: username
+				}
+			};
+
+			dispatch(addEvent(eventToBeDisplayed));
+
+			return { ok: true, body };
+		} catch (error) {
+			// TODO: MAYBE CREATE A SLICE FOR ERROR HANDLE AS I CAN GET AN DISPATCH FUNCTION WITH CREATE ASYN THUNK..
+			let errorMessage = 'Authentication failed';
+			if (error.response.data.error) {
+				errorMessage = error.response.data.error;
+			}
+
+			return { ok: false, error: errorMessage };
+		}
+	}
+);
 
 const calendarSlice = createSlice({
 	name: 'calendar',
 	initialState,
 	reducers: {
 		addEvent: (state, action) => {
-			const formValues = action.payload
+			const event = action.payload;
 			// Redux Toolkit's createReducer and createSlice automatically use Immer internally to let you write simpler immutable update logic using "mutating" syntax.
 			// This helps simplify most reducer implementations.
 			// https://redux-toolkit.js.org/usage/immer-reducers
-			state.events.push(formValues)
+			state.events.push(event);
 		},
 		setActiveEvent: (state, action) => {
-			state.activeEvents = action.payload
+			state.activeEvents = action.payload;
 		},
 		clearActiveEvent: state => {
-			state.activeEvents = null
+			state.activeEvents = null;
 		},
 		eventUpdated: (state, action) => {
-			const id = action.payload.id
+			const id = action.payload.id;
 			state.events = state.events.map(event => {
 				if (event.id === id) {
-					return action.payload
+					return action.payload;
 				}
-				return event
-			})
+				return event;
+			});
 		},
 		eventDeleted: state => {
 			state.events = state.events.filter(
 				event => event.id !== state.activeEvents.id
-			)
-			state.activeEvents = null
+			);
+			state.activeEvents = null;
+		}
+	},
+	extraReducers: {
+		[onAddNewEvent.fulfilled]: (state, action) => {
+			// TODO: HANDLE ERRORS HERE AND IN REJECTED.
 		}
 	}
-})
+});
 
 export const {
 	addEvent,
@@ -59,6 +102,6 @@ export const {
 	clearActiveEvent,
 	eventUpdated,
 	eventDeleted
-} = calendarSlice.actions
+} = calendarSlice.actions;
 
-export default calendarSlice.reducer
+export default calendarSlice.reducer;
