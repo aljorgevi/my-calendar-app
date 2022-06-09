@@ -3,8 +3,12 @@ import moment from 'moment';
 import { fetchWithoutToken, fetchWithToken } from '../../helpers';
 
 const initialState = {
-	events: [
-		{
+	events: [],
+	activeEvents: null
+};
+
+/*
+	{
 			id: new Date().getTime(),
 			title: 'All Day Event',
 			start: moment().toDate(),
@@ -15,9 +19,16 @@ const initialState = {
 				name: 'John Doe'
 			}
 		}
-	],
-	activeEvents: null
-};
+*/
+
+export const startLoadingEvents = createAsyncThunk(
+	'calendar/startLoadingEvents',
+	async (props, { dispatch }) => {
+		const response = await fetchWithToken('events');
+		const body = response.data;
+		console.log({ body });
+	}
+);
 
 export const onAddNewEvent = createAsyncThunk(
 	'calendar/onAddNewEvent',
@@ -87,6 +98,12 @@ const calendarSlice = createSlice({
 				event => event.id !== state.activeEvents.id
 			);
 			state.activeEvents = null;
+		},
+		loadEvents: (state, action) => {
+			const result = action.payload;
+			if (result.ok) {
+			} else {
+			}
 		}
 	},
 	extraReducers: {
