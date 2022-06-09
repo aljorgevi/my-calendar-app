@@ -1,4 +1,6 @@
 import axios from 'axios';
+import moment from 'moment';
+
 const BASE_URL = process.env.REACT_APP_API_URL;
 
 export const messages = {
@@ -62,4 +64,14 @@ export const fetchWithToken = (endpoint, data, method = 'GET') => {
 			}
 		});
 	}
+};
+
+export const desirializeEvents = events => {
+	return events.map(event => {
+		return {
+			...event,
+			start: moment(event.start).toDate(),
+			end: moment(event.end).toDate()
+		};
+	});
 };

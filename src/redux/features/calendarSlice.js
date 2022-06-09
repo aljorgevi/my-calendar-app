@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import moment from 'moment';
-import { fetchWithoutToken, fetchWithToken } from '../../helpers';
+import {
+	fetchWithoutToken,
+	fetchWithToken,
+	desirializeEvents
+} from '../../helpers';
 
 const initialState = {
 	events: [],
@@ -24,9 +28,20 @@ const initialState = {
 export const startLoadingEvents = createAsyncThunk(
 	'calendar/startLoadingEvents',
 	async (props, { dispatch }) => {
-		const response = await fetchWithToken('events');
-		const body = response.data;
-		console.log({ body });
+		try {
+			const response = await fetchWithToken('events');
+			const body = response.data;
+			const events = desirializeEvents(body);
+
+			return { ok: true, events };
+		} catch (error) {
+			let errorMessage = 'Authentication failed';
+			if (error.response.data.error) {
+				errorMessage = error.response.data.error;
+			}
+
+			return { ok: false, error: errorMessage };
+		}
 	}
 );
 
@@ -52,9 +67,7 @@ export const onAddNewEvent = createAsyncThunk(
 				}
 			};
 
-			dispatch(addEvent(eventToBeDisplayed));
-
-			return { ok: true, body };
+			return { ok: true, eventToBeDisplayed };
 		} catch (error) {
 			// TODO: MAYBE CREATE A SLICE FOR ERROR HANDLE AS I CAN GET AN DISPATCH FUNCTION WITH CREATE ASYN THUNK..
 			let errorMessage = 'Authentication failed';
@@ -71,13 +84,13 @@ const calendarSlice = createSlice({
 	name: 'calendar',
 	initialState,
 	reducers: {
-		addEvent: (state, action) => {
-			const event = action.payload;
-			// Redux Toolkit's createReducer and createSlice automatically use Immer internally to let you write simpler immutable update logic using "mutating" syntax.
-			// This helps simplify most reducer implementations.
-			// https://redux-toolkit.js.org/usage/immer-reducers
-			state.events.push(event);
-		},
+		// addEvent: (state, action) => {
+		// 	const event = action.payload;
+		// 	// Redux Toolkit's createReducer and createSlice automatically use Immer internally to let you write simpler immutable update logic using "mutating" syntax.
+		// 	// This helps simplify most reducer implementations.
+		// 	// https://redux-toolkit.js.org/usage/immer-reducers
+		// 	state.events.push(event);
+		// },
 		setActiveEvent: (state, action) => {
 			state.activeEvents = action.payload;
 		},
@@ -108,7 +121,20 @@ const calendarSlice = createSlice({
 	},
 	extraReducers: {
 		[onAddNewEvent.fulfilled]: (state, action) => {
-			// TODO: HANDLE ERRORS HERE AND IN REJECTED.
+			const result = action.payload;
+			if (result.ok) {
+				state.events.push(result.eventToBeDisplayed);
+			} else {
+				console.error(result.error);
+			}
+		},
+		[startLoadingEvents.fulfilled]: (state, action) => {
+			const result = action.payload;
+			if (result.ok) {
+				state.events = result.events;
+			} else {
+				console.error(result.error);
+			}
 		}
 	}
 });
