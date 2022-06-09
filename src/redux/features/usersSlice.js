@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { useCallback } from 'react';
 import { fetchWithoutToken, fetchWithToken } from '../../helpers';
 
 const initialState = {
@@ -26,6 +25,7 @@ const calculateRemainingTime = expirationTime => {
 	return remainingTime;
 };
 
+/*
 const retrieveStoredToken = () => {
 	const storedToken = localStorage.getItem('token');
 	const storedExpirationDate = localStorage.getItem('expirationTime');
@@ -46,21 +46,24 @@ const retrieveStoredToken = () => {
 		duration: remainingTime
 	};
 };
+*/
 
-// export const checkForTokenData = createAsyncThunk(
-// 	'users/checkForTokenData',
-// 	async (props, { dispatch }) => {
-// 		const tokenData = retrieveStoredToken();
+/*
+export const checkForTokenData = createAsyncThunk(
+	'users/checkForTokenData',
+	async (props, { dispatch }) => {
+		const tokenData = retrieveStoredToken();
 
-// 		if (tokenData) {
-// 			console.log(tokenData.duration);
-// 			const logoutTimer = setTimeout(logoutHandler, tokenData.duration);
-// 			dispatch(logoutTimerHandler(logoutTimer));
-// 		}
+		if (tokenData) {
+			console.log(tokenData.duration);
+			const logoutTimer = setTimeout(logoutHandler, tokenData.duration);
+			dispatch(logoutTimerHandler(logoutTimer));
+		}
 
-// 		dispatch(tokenDataHandler(tokenData));
-// 	}
-// );
+		dispatch(tokenDataHandler(tokenData));
+	}
+);
+*/
 
 export const loginHandler = createAsyncThunk(
 	'users/loginHandler',
@@ -74,10 +77,6 @@ export const loginHandler = createAsyncThunk(
 
 			localStorage.setItem('token', body.token);
 			localStorage.setItem('expirationTime', expirationTime);
-			// FIXME: in a real app, probably will need to call the renew token api every refresh as we may need more information about the user.
-			// if for example we have a profile or settings section, etc.
-			localStorage.setItem('userId', body.id);
-			localStorage.setItem('username', body.username);
 
 			const remainingTime = calculateRemainingTime(expirationTime);
 
@@ -154,18 +153,7 @@ export const logoutHandler = createAsyncThunk(
 	}
 );
 
-/*
-useEffect(() => {
-	const unsubscribe = auth.onAuthStateChanged((user) => {
-		setCurrentUser(user);
-		setLoading(false);
-	});
-
-	return unsubscribe;
-}, []);
-*/
-
-// TODO: CLEAN STATE.
+// TODO: ADD AND ERROR STATE IF ANY API CALL FAILS AND SHOW A SNACKBAR
 const userSlice = createSlice({
 	name: 'users',
 	initialState,
@@ -187,9 +175,6 @@ const userSlice = createSlice({
 		// 		state.username = null;
 		// 	}
 		// },
-		UserStarted: (state, action) => {},
-		UserRegister: (state, action) => {},
-		needToRenew: (state, action) => {},
 		onCloseErrorSnackbar: (state, action) => {
 			state.showErrorSnackbar = false;
 		},
@@ -200,6 +185,9 @@ const userSlice = createSlice({
 	extraReducers: builder => {
 		builder.addCase(loginHandler.pending, (state, action) => {
 			state.isLoading = true;
+		});
+		builder.addCase(loginHandler.rejected, (state, action) => {
+			state.isLoading = false;
 		});
 		builder.addCase(loginHandler.fulfilled, (state, action) => {
 			const result = action.payload;
@@ -214,9 +202,6 @@ const userSlice = createSlice({
 			state.isLoggedIn = true;
 			state.userId = result.body.id;
 			state.username = result.body.username;
-		});
-		builder.addCase(loginHandler.rejected, (state, action) => {
-			state.isLoading = false;
 		});
 		builder.addCase(userRegister.pending, (state, action) => {
 			state.isLoading = true;
@@ -244,6 +229,9 @@ const userSlice = createSlice({
 		});
 		builder.addCase(renewToken.pending, (state, action) => {
 			state.CheckingAuth = true;
+		});
+		builder.addCase(renewToken.rejected, (state, action) => {
+			state.CheckingAuth = false;
 		});
 		builder.addCase(renewToken.fulfilled, (state, action) => {
 			state.CheckingAuth = false;
