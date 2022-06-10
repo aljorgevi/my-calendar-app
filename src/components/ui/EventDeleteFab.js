@@ -1,8 +1,5 @@
 import { useDispatch } from 'react-redux';
-import {
-	eventDeleted,
-	onEventDelete
-} from '../../redux/features/calendarSlice';
+import { onEventDelete } from '../../redux/features/calendarSlice';
 
 const EventDeleteFab = () => {
 	const dispatch = useDispatch();

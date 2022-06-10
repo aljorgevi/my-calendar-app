@@ -1,10 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import moment from 'moment';
-import {
-	fetchWithoutToken,
-	fetchWithToken,
-	desirializeEvents
-} from '../../helpers';
+import { fetchWithToken, desirializeEvents } from '../../helpers';
 
 const initialState = {
 	events: [],

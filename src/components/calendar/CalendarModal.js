@@ -7,9 +7,7 @@ import Swal from 'sweetalert2';
 import { customStyles } from '../../helpers';
 import { closeModal } from '../../redux/features/uiSlice';
 import {
-	addEvent,
 	clearActiveEvent,
-	eventUpdated,
 	onAddNewEvent,
 	onEventUpdate
 } from '../../redux/features/calendarSlice';

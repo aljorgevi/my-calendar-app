@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
 	loginHandler,
@@ -17,7 +17,6 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export default function LoginScreen() {
-	const [open, setOpen] = useState(false);
 	const {
 		showSuccessSnackbar,
 		showErrorSnackbar,
