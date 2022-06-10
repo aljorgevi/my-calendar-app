@@ -63,13 +63,47 @@ export const onAddNewEvent = createAsyncThunk(
 				bgColor: '#f56954',
 				user: {
 					_id: userId,
-					name: username
+					username
 				}
 			};
 
 			return { ok: true, eventToBeDisplayed };
 		} catch (error) {
 			// TODO: MAYBE CREATE A SLICE FOR ERROR HANDLE AS I CAN GET AN DISPATCH FUNCTION WITH CREATE ASYN THUNK..
+			let errorMessage = 'Authentication failed';
+			if (error.response.data.error) {
+				errorMessage = error.response.data.error;
+			}
+
+			return { ok: false, error: errorMessage };
+		}
+	}
+);
+
+export const onEventUpdate = createAsyncThunk(
+	'calendar/onEventUpdate',
+	async (event, { dispatch, getState }) => {
+		const { id } = event;
+		const { username, userId } = getState().users;
+
+		try {
+			const response = await fetchWithToken(`events/${id}`, event, 'PUT');
+			const body = response.data;
+
+			const eventToBeDisplayed = {
+				id: body.id,
+				title: body.title,
+				start: body.start,
+				end: body.end,
+				bgColor: '#f56954',
+				user: {
+					_id: userId,
+					username
+				}
+			};
+
+			return { ok: true, body: eventToBeDisplayed };
+		} catch (error) {
 			let errorMessage = 'Authentication failed';
 			if (error.response.data.error) {
 				errorMessage = error.response.data.error;
@@ -132,6 +166,22 @@ const calendarSlice = createSlice({
 			const result = action.payload;
 			if (result.ok) {
 				state.events = result.events;
+			} else {
+				console.error(result.error);
+			}
+		},
+		[onEventUpdate.fulfilled]: (state, action) => {
+			const result = action.payload;
+
+			if (result.ok) {
+				const savedEvent = result.body;
+
+				state.events = state.events.map(event => {
+					if (event.id === savedEvent.id) {
+						return savedEvent;
+					}
+					return event;
+				});
 			} else {
 				console.error(result.error);
 			}

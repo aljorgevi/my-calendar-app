@@ -41,7 +41,14 @@ const CalendarScreen = () => {
 	};
 
 	const eventStyleGetter = (event, start, end, isSelected) => {
-		console.log({ event });
+		// const evenUserId = event.user._id;
+
+		// console.log(event.title, event.user._id === userId, {
+		// 	evenUserId,
+		// 	userId,
+		// 	event
+		// });
+
 		const style = {
 			// backgroundColor different is userId is different that event.user._id
 			backgroundColor: event.user._id === userId ? '#367CF7' : '#465660',

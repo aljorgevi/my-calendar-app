@@ -10,7 +10,8 @@ import {
 	addEvent,
 	clearActiveEvent,
 	eventUpdated,
-	onAddNewEvent
+	onAddNewEvent,
+	onEventUpdate
 } from '../../redux/features/calendarSlice';
 
 Modal.setAppElement('#root');
@@ -90,7 +91,8 @@ const CalendarModal = () => {
 		}
 
 		if (activeEvents) {
-			dispatch(eventUpdated(formValues));
+			// dispatch(eventUpdated(formValues));
+			dispatch(onEventUpdate(formValues));
 		} else {
 			// save in db & display in UI
 			dispatch(onAddNewEvent(formValues));
