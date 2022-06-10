@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchWithoutToken, fetchWithToken } from '../../helpers';
+import { cleanCalendarState } from '../features/calendarSlice';
 
 const initialState = {
 	tokenData: null,
@@ -141,7 +142,7 @@ export const renewToken = createAsyncThunk('users/renewToken', async () => {
 
 export const logoutHandler = createAsyncThunk(
 	'users/logoutHandler',
-	async (props, { getState }) => {
+	async (props, { dispatch, getState }) => {
 		const state = getState();
 
 		localStorage.removeItem('token');
@@ -150,6 +151,8 @@ export const logoutHandler = createAsyncThunk(
 		if (state.logoutTimer) {
 			clearTimeout(state.logoutTimer);
 		}
+
+		dispatch(cleanCalendarState());
 	}
 );
 

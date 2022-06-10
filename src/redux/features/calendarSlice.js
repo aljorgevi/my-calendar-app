@@ -114,6 +114,26 @@ export const onEventUpdate = createAsyncThunk(
 	}
 );
 
+export const onEventDelete = createAsyncThunk(
+	'calendar/onEventDelete',
+	async (props, { dispatch, getState }) => {
+		const { id } = getState().calendar.activeEvents;
+
+		try {
+			const response = await fetchWithToken(`events/${id}`, {}, 'DELETE');
+			console.log({ response });
+			dispatch(eventDeleted());
+		} catch (error) {
+			let errorMessage = 'Authentication failed';
+			if (error.response.data.error) {
+				errorMessage = error.response.data.error;
+			}
+
+			return { ok: false, error: errorMessage };
+		}
+	}
+);
+
 const calendarSlice = createSlice({
 	name: 'calendar',
 	initialState,
@@ -151,6 +171,10 @@ const calendarSlice = createSlice({
 			if (result.ok) {
 			} else {
 			}
+		},
+		cleanCalendarState: state => {
+			state.events = [];
+			state.activeEvents = null;
 		}
 	},
 	extraReducers: {
@@ -194,7 +218,8 @@ export const {
 	setActiveEvent,
 	clearActiveEvent,
 	eventUpdated,
-	eventDeleted
+	eventDeleted,
+	cleanCalendarState
 } = calendarSlice.actions;
 
 export default calendarSlice.reducer;
