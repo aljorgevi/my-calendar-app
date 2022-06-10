@@ -23,6 +23,7 @@ const localizer = momentLocalizer(moment);
 
 const CalendarScreen = () => {
 	const { events, activeEvents } = useSelector(store => store.calendar);
+	const { userId } = useSelector(store => store.users);
 	const dispatch = useDispatch();
 	const [lastView, setLastView] = useState(
 		localStorage.getItem('lastView') || 'month'
@@ -40,8 +41,10 @@ const CalendarScreen = () => {
 	};
 
 	const eventStyleGetter = (event, start, end, isSelected) => {
+		console.log({ event });
 		const style = {
-			backgroundColor: '#367CF7',
+			// backgroundColor different is userId is different that event.user._id
+			backgroundColor: event.user._id === userId ? '#367CF7' : '#465660',
 			borderRadius: '0px',
 			opacity: 0.8,
 			color: 'white'
