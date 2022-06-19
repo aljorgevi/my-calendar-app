@@ -5,7 +5,7 @@ import {
 	userRegister,
 	onCloseErrorSnackbar,
 	onCloseSuccessSnackbar
-} from '../../redux/features/usersSlice';
+} from '../../redux/features/user/usersSlice';
 import { useForm } from '../../hooks/useForm';
 import './login.css';
 import Swal from 'sweetalert2';
@@ -17,15 +17,12 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 export default function LoginScreen() {
-	const {
-		showSuccessSnackbar,
-		showErrorSnackbar,
-		errorMessage,
-		successMessage
-	} = useSelector(store => store.users);
+	const { showSuccessSnackbar, showErrorSnackbar, errorMessage, successMessage } = useSelector(
+		store => store.users
+	);
 	const dispatch = useDispatch();
 	const [formLoginValues, handleLoginInputChange] = useForm({
-		login_email: 'admin@email.com',
+		login_email: 'test@test.com',
 		login_password: 'password'
 	});
 
@@ -38,12 +35,8 @@ export default function LoginScreen() {
 		register_password_confirm: ''
 	});
 
-	const {
-		register_username,
-		register_email,
-		register_password,
-		register_password_confirm
-	} = formRegisternValues;
+	const { register_username, register_email, register_password, register_password_confirm } =
+		formRegisternValues;
 
 	const handleLoginSubmit = event => {
 		event.preventDefault();
@@ -184,11 +177,7 @@ export default function LoginScreen() {
 				onClose={handleCloseSuccessSnackbar}
 				anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
 			>
-				<Alert
-					onClose={handleCloseSuccessSnackbar}
-					severity='success'
-					sx={{ width: '100%' }}
-				>
+				<Alert onClose={handleCloseSuccessSnackbar} severity='success' sx={{ width: '100%' }}>
 					{successMessage}
 				</Alert>
 			</Snackbar>
@@ -198,11 +187,7 @@ export default function LoginScreen() {
 				onClose={handleCloseErrorSnackbar}
 				anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
 			>
-				<Alert
-					onClose={handleCloseErrorSnackbar}
-					severity='error'
-					sx={{ width: '100%' }}
-				>
+				<Alert onClose={handleCloseErrorSnackbar} severity='error' sx={{ width: '100%' }}>
 					{errorMessage}
 				</Alert>
 			</Snackbar>

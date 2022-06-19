@@ -1,7 +1,7 @@
-import { configureStore } from '@reduxjs/toolkit'
-import uiReducer from './features/uiSlice'
-import calendarReducer from './features/calendarSlice'
-import userSlice from './features/usersSlice'
+import { configureStore } from '@reduxjs/toolkit';
+import uiReducer from './features/uiSlice';
+import calendarReducer from './features/calendarSlice';
+import userSlice from './features/user/usersSlice';
 
 export const store = configureStore({
 	middleware: getDefaultMiddleware =>
@@ -13,4 +13,4 @@ export const store = configureStore({
 		calendar: calendarReducer,
 		users: userSlice
 	}
-})
+});

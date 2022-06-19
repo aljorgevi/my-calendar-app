@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { logoutHandler } from '../../redux/features/usersSlice';
+import { logoutHandler } from '../../redux/features/user/usersSlice';
 
 const Navbar = () => {
 	const dispatch = useDispatch();
