@@ -30,6 +30,10 @@ export const customStyles = {
 	}
 };
 
+export const geTokenFromLocalStorage = () => {
+	return localStorage.getItem('token');
+};
+
 export const fetchWithoutToken = (endpoint, loginDetails, method = 'GET') => {
 	const url = `${BASE_URL}/${endpoint}`;
 	if (method === 'GET') {
@@ -74,4 +78,13 @@ export const desirializeEvents = events => {
 			end: moment(event.end).toDate()
 		};
 	});
+};
+
+export const calculateRemainingTime = expirationTime => {
+	const currenTime = new Date().getTime();
+	const adjExpirationTime = new Date(expirationTime).getTime();
+
+	const remainingTime = adjExpirationTime - currenTime;
+
+	return remainingTime;
 };
