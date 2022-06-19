@@ -5,12 +5,8 @@ import moment from 'moment';
 import Modal from 'react-modal';
 import Swal from 'sweetalert2';
 import { customStyles } from '../../helpers';
-import { closeModal } from '../../redux/features/uiSlice';
-import {
-	clearActiveEvent,
-	onAddNewEvent,
-	onEventUpdate
-} from '../../redux/features/calendarSlice';
+import { closeModal } from '../../redux/features/ui/uiSlice';
+import { clearActiveEvent, onAddNewEvent, onEventUpdate } from '../../redux/features/calendarSlice';
 
 Modal.setAppElement('#root');
 
@@ -76,11 +72,7 @@ const CalendarModal = () => {
 		const momentEnd = moment(end);
 
 		if (momentStart.isSameOrAfter(momentEnd)) {
-			return Swal.fire(
-				'Error',
-				'La fecha de inicio debe ser anterior a la fecha de fin',
-				'error'
-			);
+			return Swal.fire('Error', 'La fecha de inicio debe ser anterior a la fecha de fin', 'error');
 		}
 
 		if (title.trim().length < 2) {
@@ -169,10 +161,7 @@ const CalendarModal = () => {
 							Información adicional
 						</small>
 					</div>
-					<button
-						type='submit'
-						className='btn btn-outline-primary btn-block mt-2'
-					>
+					<button type='submit' className='btn btn-outline-primary btn-block mt-2'>
 						<i className='far fa-save'></i>
 						<span> Guardar</span>
 					</button>
