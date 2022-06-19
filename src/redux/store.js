@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import uiReducer from './features/uiSlice';
+import uiReducer from './features/ui/uiSlice';
 import calendarReducer from './features/calendarSlice';
 import userSlice from './features/user/usersSlice';
 
