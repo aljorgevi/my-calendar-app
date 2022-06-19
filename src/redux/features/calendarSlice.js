@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithToken, desirializeEvents } from '../../helpers';
+import { desirializeEvents } from '../../helpers';
+import { customFetch } from '../../api/axios';
 
 const initialState = {
 	events: [],
@@ -24,7 +25,7 @@ export const startLoadingEvents = createAsyncThunk(
 	'calendar/startLoadingEvents',
 	async (props, { dispatch }) => {
 		try {
-			const response = await fetchWithToken('events');
+			const response = await customFetch.get('/events');
 			const body = response.data;
 			const events = desirializeEvents(body);
 
@@ -47,7 +48,7 @@ export const onAddNewEvent = createAsyncThunk(
 		const { username, userId } = getState().users;
 
 		try {
-			const response = await fetchWithToken('events', event, 'POST');
+			const response = await customFetch.post('/events', event);
 			const body = response.data;
 
 			const eventToBeDisplayed = {
@@ -82,7 +83,7 @@ export const onEventUpdate = createAsyncThunk(
 		const { username, userId } = getState().users;
 
 		try {
-			const response = await fetchWithToken(`events/${id}`, event, 'PUT');
+			const response = await customFetch.put(`/events/${id}`, event);
 			const body = response.data;
 
 			const eventToBeDisplayed = {
@@ -115,7 +116,7 @@ export const onEventDelete = createAsyncThunk(
 		const { id } = getState().calendar.activeEvents;
 
 		try {
-			const response = await fetchWithToken(`events/${id}`, {}, 'DELETE');
+			const response = await customFetch.delete(`/events/${id}`);
 			console.log({ response });
 			dispatch(eventDeleted());
 		} catch (error) {
@@ -156,9 +157,7 @@ const calendarSlice = createSlice({
 			});
 		},
 		eventDeleted: state => {
-			state.events = state.events.filter(
-				event => event.id !== state.activeEvents.id
-			);
+			state.events = state.events.filter(event => event.id !== state.activeEvents.id);
 			state.activeEvents = null;
 		},
 		loadEvents: (state, action) => {
