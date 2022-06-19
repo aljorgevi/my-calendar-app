@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { renewToken } from '../redux/features/usersSlice';
+import { renewToken } from '../redux/features/user/usersSlice';
 import LoginScreen from '../components/auth/LoginScreen';
 import CalendarScreen from '../components/calendar/CalendarScreen';
 import PrivateRoute from './PrivateRoute';
