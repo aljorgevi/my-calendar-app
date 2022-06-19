@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
-import { openModal } from '../../redux/features/uiSlice';
+import { openModal } from '../../redux/features/ui/uiSlice';
 import {
 	setActiveEvent,
 	clearActiveEvent,
@@ -25,9 +25,7 @@ const CalendarScreen = () => {
 	const { events, activeEvents } = useSelector(store => store.calendar);
 	const { userId } = useSelector(store => store.users);
 	const dispatch = useDispatch();
-	const [lastView, setLastView] = useState(
-		localStorage.getItem('lastView') || 'month'
-	);
+	const [lastView, setLastView] = useState(localStorage.getItem('lastView') || 'month');
 
 	const doubleClickHandler = () => dispatch(openModal());
 
