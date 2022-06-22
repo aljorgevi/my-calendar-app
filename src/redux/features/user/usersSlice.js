@@ -111,7 +111,7 @@ export const logoutHandler = createAsyncThunk(
 );
 
 // TODO: ADD AND ERROR STATE IF ANY API CALL FAILS AND SHOW A SNACKBAR
-const userSlice = createSlice({
+export const userSlice = createSlice({
 	name: 'users',
 	initialState,
 	reducers: {
