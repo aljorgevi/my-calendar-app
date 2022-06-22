@@ -130,7 +130,7 @@ export const onEventDelete = createAsyncThunk(
 	}
 );
 
-const calendarSlice = createSlice({
+export const calendarSlice = createSlice({
 	name: 'calendar',
 	initialState,
 	reducers: {
