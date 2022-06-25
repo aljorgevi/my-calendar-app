@@ -34,7 +34,8 @@
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
 		"test:coverageAll": "CI=true npm test -- --coverage",
-		"test:coverage": "npm test -- --coverage"
+		"test:coverage": "npm test -- --coverage",
+		"prepare": "husky install"
 	},
 	"eslintConfig": {
 		"extends": [
