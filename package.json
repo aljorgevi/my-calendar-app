@@ -15,6 +15,7 @@
 		"@testing-library/user-event": "^13.5.0",
 		"axios": "^0.27.2",
 		"moment": "^2.29.3",
+		"msw": "^0.42.3",
 		"react": "^18.1.0",
 		"react-big-calendar": "^0.40.1",
 		"react-datetime-picker": "^3.5.0",
@@ -31,7 +32,9 @@
 		"start": "react-scripts start",
 		"build": "react-scripts build",
 		"test": "react-scripts test",
-		"eject": "react-scripts eject"
+		"eject": "react-scripts eject",
+		"test:coverageAll": "CI=true npm test -- --coverage",
+		"test:coverage": "npm test -- --coverage"
 	},
 	"eslintConfig": {
 		"extends": [
