@@ -1,6 +1,6 @@
 import { customFetch } from '../../api/axios';
 import { rest } from 'msw';
-import { setupServer } from 'msw/node';
+import { server } from '../server';
 
 describe('testing calendar api', () => {
 	const loginDetails = {
@@ -11,22 +11,8 @@ describe('testing calendar api', () => {
 	// TODO: set this in a config global file.
 	// TODO: I can see my request, tokens, and body that i send... the response is different.
 	// TODO: try differents response for same call. https://github.com/mswjs/msw/discussions/885
-	const server = setupServer(
-		rest.get('http://localhost:3001/api/v1/test', (req, res, ctx) => {
-			// Respond with a mocked user token that gets persisted
-			// in the `sessionStorage` by the `Login` component.
-			return res(ctx.json({ token: 'mocked_user_token' }));
-		})
-	);
-
-	// Enable API mocking before tests.
-	beforeAll(() => server.listen());
-
-	// Reset any runtime request handlers we may add during the tests.
-	afterEach(() => server.resetHandlers());
-
-	// Disable API mocking after the tests are done.
-	afterAll(() => server.close());
+	// TODO: MINUTE 11:57 https://www.youtube.com/watch?v=oMv2eAGWtZU&list=PLZeub04vFhEoc9CyIKhLGxCl8Vwd0BnkA&index=2&t=778s
+	// have handlers, even do I prfer to have the interceptor in the test file.
 
 	test('axios should have config baseURL by default', () => {
 		// Arrange
@@ -44,10 +30,31 @@ describe('testing calendar api', () => {
 		localStorage.setItem('token', mockTocken);
 
 		// Act
+		// this in intersectec in handlers.js
+		const res = await customFetch.get('/test', loginDetails);
+		// console.log({ res });
+
+		// Assert
+		expect(res.config.headers['Authorization']).toBe(`Bearer ${mockTocken}`);
+	});
+
+	test('same request the previous but failed', async () => {
+		// Arrange
+		const mockTocken =
+			'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9-gkKcW5R-4_4Jz4F_0U6PQ2CKXOaS0f6l7-NpKD-1sVg';
+		localStorage.setItem('token', mockTocken);
+
+		server.use(
+			rest.get('http://localhost:3001/api/v1/test', (req, res, ctx) =>
+				res(ctx.json({ token: 'mocked_user_token' }))
+			)
+		);
+
+		// Act
 		const res = await customFetch.get('/test', loginDetails);
 		console.log({ res });
 
 		// Assert
-		expect(res.config.headers['Authorization']).toBe(`Bearer ${mockTocken}`);
+		expect(res.data.token).toBe('mocked_user_token');
 	});
 });
